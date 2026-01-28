@@ -1,10 +1,8 @@
 # DQN-Cart-Pole
-DQN and Double DQN Cart-Pole using Gymnasium
+Double DQN and Dueling DQN Cart-Pole using Gymnasium
 
 ## Training
 To train run: `python3 agent.py cartpole1 --train`
-
-After 100,000 reward the traning plateus and can be manually stopped Dependingon if using DQN or Double DQN th eamount of steps can range from ~5000 to ~10,000+
 
 ## Testing
 To test, run: `python3 agent.py cartpole1`
