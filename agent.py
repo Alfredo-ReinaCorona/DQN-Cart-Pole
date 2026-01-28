@@ -1,21 +1,15 @@
 import gymnasium as gym
 import numpy as np
-
 import matplotlib
 import matplotlib.pyplot as plt
-
 import random
 import torch
 from torch import nn
-import yaml
-
 from experience_replay import ReplayMemory
 from dqn import DQN
-
 from datetime import datetime, timedelta
 import argparse
 import itertools
-
 import os
 
 # For printing date and time
@@ -29,37 +23,34 @@ os.makedirs(RUNS_DIR, exist_ok=True)
 matplotlib.use('Agg')
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-device = 'cpu' # force cpu, sometimes GPU not always faster than CPU due to overhead of moving data to GPU
+# device = 'cpu' # force cpu
 
-# Deep Q-Learning Agent
 class Agent():
 
     def __init__(self, hyperparameter_set):
-        with open('hyperparameters.yml', 'r') as file:
-            all_hyperparameter_sets = yaml.safe_load(file)
-            hyperparameters = all_hyperparameter_sets[hyperparameter_set]
-            # print(hyperparameters)
 
         self.hyperparameter_set = hyperparameter_set
 
         # Hyperparameters (adjustable)
-        self.env_id             = hyperparameters['env_id']
-        self.learning_rate_a    = hyperparameters['learning_rate_a']        # learning rate (alpha)
-        self.discount_factor_g  = hyperparameters['discount_factor_g']      # discount rate (gamma)
-        self.network_sync_rate  = hyperparameters['network_sync_rate']      # number of steps the agent takes before syncing the policy and target network
-        self.replay_memory_size = hyperparameters['replay_memory_size']     # size of replay memory
-        self.mini_batch_size    = hyperparameters['mini_batch_size']        # size of the training data set sampled from the replay memory
-        self.epsilon_init       = hyperparameters['epsilon_init']           # 1 = 100% random actions
-        self.epsilon_decay      = hyperparameters['epsilon_decay']          # epsilon decay rate
-        self.epsilon_min        = hyperparameters['epsilon_min']            # minimum epsilon value
-        self.stop_on_reward     = hyperparameters['stop_on_reward']         # stop training after reaching this number of rewards
-        self.fc1_nodes          = hyperparameters['fc1_nodes']
-        self.env_make_params    = hyperparameters.get('env_make_params',{}) # Get optional environment-specific parameters, default to empty dict
-        self.enable_double_dqn  = hyperparameters['enable_double_dqn']      # double dqn on/off flag
-        self.enable_dueling_dqn = hyperparameters['enable_dueling_dqn']     # dueling dqn on/off flag
+        self.env_id             = "CartPole-v1"
+        self.learning_rate_a    = 0.001
+        self.discount_factor_g  = 0.99
+        self.network_sync_rate  = 100    # number of steps the agent takes before syncing the policy and target network
+        self.replay_memory_size = 100000 # size of replay memory
+        self.mini_batch_size    = 64     # size of the training data set sampled from the replay memory
+        self.epsilon_init       = 1      # 1 = 100% random actions
+        self.epsilon_decay      = 0.9995
+        self.epsilon_min        = 0.01
+        self.stop_on_reward     = 100000 # stop training after reaching this number of rewards
+        self.fc1_nodes          = 128
+        self.env_make_params    = {}     # optional environment-specific parameters, default empty dict
+
+        # Choose one or the other
+        self.enable_double_dqn  = True
+        self.enable_dueling_dqn = False
 
         # Neural Network
-        self.loss_fn = nn.MSELoss()          # NN Loss function. MSE=Mean Squared Error can be swapped to something else.
+        self.loss_fn = nn.MSELoss()          # NN Loss function
         self.optimizer = None                # NN Optimizer. Initialize later.
 
         # Path to Run info
@@ -285,6 +276,9 @@ if __name__ == '__main__':
     parser.add_argument('hyperparameters', help='')
     parser.add_argument('--train', help='Training mode', action='store_true')
     args = parser.parse_args()
+
+    # Debug
+    # print("Hyperparameters: ",args.hyperparameters)
 
     dql = Agent(hyperparameter_set=args.hyperparameters)
 

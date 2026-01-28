@@ -16,3 +16,20 @@ dist/
 
 # Env
 .env
+
+# Project venv
+dqn-cart-pole-env/
+env/
+
+# RL outputs
+runs/
+*.pt
+*.pth
+*.ckpt
+*.log
+*.png
+*.npy
+*.npz
+
+# VS Code
+.vscode/
